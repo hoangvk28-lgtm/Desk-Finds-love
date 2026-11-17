@@ -27,21 +27,24 @@ import { RichGuidePage } from "@/components/guide/RichGuidePage";
 import { informationalGuideLoaders } from "@/data/informational-index.generated";
 import { InformationalGuidePage } from "@/components/guide/InformationalGuidePage";
 
-export const revalidate = 604800;
 
 type Props = { params: Promise<{ slug: string }> };
 
 // ─── Static generation ────────────────────────────────────────────────────────
 
+// A static export has no server, so every guide URL must be prerendered here.
+// The rich data-file guides (guideDataLoaders) and the informational guides
+// (informationalGuideLoaders) used to be excluded on purpose so Vercel would
+// render them on demand and ISR-cache them; without a server, a slug missing
+// from this list simply does not exist on the live site. Slugs that have their
+// own literal route directory under app/(site)/guide/<slug>/ stay out, since
+// that route already renders them.
+export const dynamicParams = false;
+
 export async function generateStaticParams() {
-  const [guideSlugs] = await Promise.all([getPublicGuideSlugs()]);
+  const guideSlugs = await getPublicGuideSlugs();
   const categorySlugs = categories.map((c) => c.slug);
 
-  // Slugs that already have a dedicated static route at app/(site)/guide/<slug>/page.tsx
-  // are fully handled by that literal route and must be excluded here. Including them
-  // causes this dynamic route to rebuild (and ISR-write) the same page a second time on
-  // every deploy, needlessly multiplying Vercel Fast Data Cache read/write usage across
-  // 1500+ guides.
   const fs = await import("fs");
   const path = await import("path");
   const guideDir = path.join(process.cwd(), "app", "(site)", "guide");
@@ -54,17 +57,18 @@ export async function generateStaticParams() {
         .map((d) => d.name)
     );
   } catch {
-    // If the directory can't be read for any reason, fall back to including everything
-    // rather than silently dropping legitimate DB-only guides.
+    // If the directory can't be read, include everything rather than silently
+    // dropping legitimate guides.
   }
 
-  // Slugs backed by a rich data/guides/<slug>.ts file (via guideDataLoaders) are
-  // rendered on-demand through the RichGuidePage branch below and must also stay out
-  // of eager static generation here, whether or not they still have a literal route
-  // directory - that's the whole point of moving them off the eager-build path.
-  const all = [...new Set([...guideSlugs, ...categorySlugs])].filter(
-    (slug) => !staticRouteSlugs.has(slug) && !guideDataLoaders[slug] && !informationalGuideLoaders[slug]
-  );
+  const all = [
+    ...new Set([
+      ...guideSlugs,
+      ...categorySlugs,
+      ...Object.keys(guideDataLoaders),
+      ...Object.keys(informationalGuideLoaders),
+    ]),
+  ].filter((slug) => !staticRouteSlugs.has(slug));
   return all.map((slug) => ({ slug }));
 }
 

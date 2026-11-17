@@ -20,7 +20,6 @@ import {
   mainKeyword,
 } from "@/data/guides/best-tablet-stands-for-bed";
 
-export const revalidate = 604800;
 
 export const metadata: Metadata = {
   ...buildMetadata({

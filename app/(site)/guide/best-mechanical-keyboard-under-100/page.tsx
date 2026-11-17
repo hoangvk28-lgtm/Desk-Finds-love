@@ -17,7 +17,6 @@ import {
   type MechKeyboard100,
 } from "@/data/guides/best-mechanical-keyboard-under-100";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

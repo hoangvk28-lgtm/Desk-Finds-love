@@ -34,7 +34,6 @@ const VS_ARTICLES = [
   },
 ];
 
-export const revalidate = 86400;
 
 export const metadata: Metadata = buildMetadata({
   title: "Compare Small-Space Products Side-by-Side",

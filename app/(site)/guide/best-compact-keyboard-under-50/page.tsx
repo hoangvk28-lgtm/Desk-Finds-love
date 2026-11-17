@@ -17,7 +17,6 @@ import {
   type CompactKeyboard,
 } from "@/data/guides/best-compact-keyboard-under-50";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

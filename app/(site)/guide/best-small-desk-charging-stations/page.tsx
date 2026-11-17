@@ -20,7 +20,6 @@ import {
   type SmallDeskCharger,
 } from "@/data/guides/best-small-desk-charging-stations";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

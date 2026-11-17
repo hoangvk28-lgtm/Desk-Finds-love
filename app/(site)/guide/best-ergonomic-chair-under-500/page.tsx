@@ -17,7 +17,6 @@ import {
   type ErgoChair500,
 } from "@/data/guides/best-ergonomic-chair-under-500";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

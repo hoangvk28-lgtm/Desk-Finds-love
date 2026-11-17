@@ -20,7 +20,6 @@ import {
   type ComparePick,
 } from "@/data/guides/lap-desk-vs-standing-desk-converter";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: compareTitle,

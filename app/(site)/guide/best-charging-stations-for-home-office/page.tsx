@@ -10,7 +10,6 @@ import {
   type HomeOfficeProduct,
 } from "@/data/guides/best-charging-stations-for-home-office";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle, description: metaDescription,

@@ -9,7 +9,6 @@ import {
   type Apple3in1,
 } from "@/data/guides/best-budget-apple-3-in-1-charging-station-under-40";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle, description: metaDescription,

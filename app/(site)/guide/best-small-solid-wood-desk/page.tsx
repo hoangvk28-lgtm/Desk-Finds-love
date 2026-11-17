@@ -17,7 +17,6 @@ import {
   type SmallSolidWoodDesk,
 } from "@/data/guides/best-small-solid-wood-desk";
 
-export const revalidate = 604800;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

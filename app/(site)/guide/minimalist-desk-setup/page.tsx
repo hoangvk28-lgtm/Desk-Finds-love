@@ -21,7 +21,6 @@ import {
   type MinimalIdea,
 } from "@/data/guides/minimalist-desk-setup";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

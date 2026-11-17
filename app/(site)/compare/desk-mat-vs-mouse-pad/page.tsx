@@ -20,7 +20,6 @@ import {
   type ComparePick,
 } from "@/data/guides/desk-mat-vs-mouse-pad";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: compareTitle,

@@ -20,7 +20,6 @@ import {
   type OrganizerProduct,
 } from "@/data/guides/best-charging-station-desk-organizers";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

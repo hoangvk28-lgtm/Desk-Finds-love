@@ -19,9 +19,11 @@ import { formatDate, scoreToColor, scoreToLabel } from "@/lib/utils";
 
 type Props = { params: Promise<{ slug: string }> };
 
-export const revalidate = false;
 
 // ─── Static generation ────────────────────────────────────────────────────────
+
+// Static export: this list is the complete set of routes; anything else 404s.
+export const dynamicParams = false;
 
 export async function generateStaticParams() {
   const slugs = await getPublicProductSlugs();

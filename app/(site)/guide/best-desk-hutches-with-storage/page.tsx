@@ -16,7 +16,6 @@ import {
   type GuideProduct,
 } from "@/data/guides/best-desk-hutches-with-storage";
 
-export const revalidate = 604800;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

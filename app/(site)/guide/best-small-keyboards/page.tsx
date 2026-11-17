@@ -16,7 +16,6 @@ import {
   faq,
 } from "@/data/guides/best-small-keyboards";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

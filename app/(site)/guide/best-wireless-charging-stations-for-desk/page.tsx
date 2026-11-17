@@ -21,7 +21,6 @@ import {
   type WirelessProduct,
 } from "@/data/guides/best-wireless-charging-stations-for-desk";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

@@ -9,7 +9,6 @@ import {
   type MultiCharger,
 } from "@/data/guides/best-budget-multi-device-charging-station-under-50";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle, description: metaDescription,

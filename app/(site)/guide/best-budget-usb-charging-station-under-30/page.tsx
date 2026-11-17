@@ -9,7 +9,6 @@ import {
   type ChargingProduct,
 } from "@/data/guides/best-budget-usb-charging-station-under-30";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle, description: metaDescription,

@@ -18,7 +18,6 @@ import {
   type GamingHeadset,
 } from "@/data/guides/best-headphones-for-gaming";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

@@ -19,7 +19,6 @@ import {
   type UsbHub,
 } from "@/data/guides/best-usb-hub-for-desk";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

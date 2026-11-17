@@ -17,7 +17,6 @@ import {
   type BudgetMonitor,
 } from "@/data/guides/best-monitor-under-100";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

@@ -11,7 +11,6 @@ import {
 metaTitle, metaDescription,
 } from "@/data/guides/best-desk-setup-accessories";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle, description: metaDescription,

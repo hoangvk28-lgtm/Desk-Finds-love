@@ -20,7 +20,6 @@ import {
   type SetupIdea,
 } from "@/data/guides/small-desk-setup";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

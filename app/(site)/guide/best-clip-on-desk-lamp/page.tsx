@@ -18,7 +18,6 @@ import {
   type ClipLamp,
 } from "@/data/guides/best-clip-on-desk-lamp";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

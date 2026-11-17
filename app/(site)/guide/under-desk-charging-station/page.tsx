@@ -11,7 +11,6 @@ import {
   type UnderDeskProduct,
 } from "@/data/guides/under-desk-charging-station";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle, description: metaDescription,

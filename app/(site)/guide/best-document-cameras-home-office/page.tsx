@@ -17,7 +17,6 @@ import {
   type DocumentCamera,
 } from "@/data/guides/best-document-cameras-home-office";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

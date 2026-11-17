@@ -17,7 +17,6 @@ import {
   type LShapedStandingDesk,
 } from "@/data/guides/best-l-shaped-standing-desk";
 
-export const revalidate = 604800;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

@@ -18,7 +18,6 @@ import {
   type WorkHeadset,
 } from "@/data/guides/best-headset-for-work";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

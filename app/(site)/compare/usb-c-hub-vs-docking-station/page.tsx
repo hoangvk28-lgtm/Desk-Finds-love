@@ -20,7 +20,6 @@ import {
   type ComparePick,
 } from "@/data/guides/usb-c-hub-vs-docking-station";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: compareTitle,

@@ -21,7 +21,6 @@ import {
   type ComparePick,
 } from "@/data/guides/monitor-stand-vs-monitor-arm";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: compareTitle,

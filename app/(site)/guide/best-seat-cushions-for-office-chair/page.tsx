@@ -18,7 +18,6 @@ import {
   type SeatCushion,
 } from "@/data/guides/best-seat-cushions-for-office-chair";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

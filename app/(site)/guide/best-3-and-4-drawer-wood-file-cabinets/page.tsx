@@ -18,7 +18,6 @@ import {
   type MultiDrawerCabinet,
 } from "@/data/guides/best-3-and-4-drawer-wood-file-cabinets";
 
-export const revalidate = 604800;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

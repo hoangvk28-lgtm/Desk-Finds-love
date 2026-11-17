@@ -16,7 +16,6 @@ import {
   type OrgProduct,
 } from "@/data/guides/small-desk-organization-ideas";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

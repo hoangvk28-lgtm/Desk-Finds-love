@@ -18,7 +18,6 @@ import {
   type FileCabinet,
 } from "@/data/guides/best-2-drawer-wood-file-cabinets-under-150";
 
-export const revalidate = 604800;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

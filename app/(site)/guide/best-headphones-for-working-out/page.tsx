@@ -18,7 +18,6 @@ import {
   type WorkoutHeadphone,
 } from "@/data/guides/best-headphones-for-working-out";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

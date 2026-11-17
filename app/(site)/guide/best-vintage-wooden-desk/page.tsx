@@ -17,7 +17,6 @@ import {
   type VintageDesk,
 } from "@/data/guides/best-vintage-wooden-desk";
 
-export const revalidate = 604800;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

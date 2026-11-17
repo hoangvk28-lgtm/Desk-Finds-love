@@ -11,7 +11,6 @@ import {
 metaTitle, metaDescription,
 } from "@/data/guides/25-best-dorm-items-under-25";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle, description: metaDescription,

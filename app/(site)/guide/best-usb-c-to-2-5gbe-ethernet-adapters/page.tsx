@@ -20,7 +20,6 @@ import {
   type GuideProduct,
 } from "@/data/guides/best-usb-c-to-2-5gbe-ethernet-adapters";
 
-export const revalidate = 604800;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

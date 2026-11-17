@@ -18,7 +18,6 @@ import {
   type VintageCabinet,
 } from "@/data/guides/best-vintage-wood-file-cabinets";
 
-export const revalidate = 604800;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

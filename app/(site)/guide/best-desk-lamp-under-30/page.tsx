@@ -11,7 +11,6 @@ import {
   type BudgetLamp,
 } from "@/data/guides/best-desk-lamp-under-30";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle, description: metaDescription,

@@ -20,7 +20,6 @@ import {
   type GuideProduct,
 } from "@/data/guides/best-18-inch-laptop-cooling-pads";
 
-export const revalidate = 604800;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

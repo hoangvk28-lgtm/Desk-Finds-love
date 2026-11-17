@@ -17,7 +17,6 @@ import {
   type Budget100Headphone,
 } from "@/data/guides/best-headphones-under-100";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

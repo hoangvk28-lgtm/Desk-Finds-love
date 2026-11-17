@@ -17,7 +17,6 @@ import {
   type StandingDesk300,
 } from "@/data/guides/best-standing-desk-under-300";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

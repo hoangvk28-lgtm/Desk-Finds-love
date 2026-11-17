@@ -21,7 +21,6 @@ import {
   type ErgoProduct,
 } from "@/data/guides/ergonomic-desk-setup";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

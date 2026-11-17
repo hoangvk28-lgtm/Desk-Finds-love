@@ -17,7 +17,6 @@ import {
   type HomeOfficeWebcam,
 } from "@/data/guides/best-webcams-for-home-office";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

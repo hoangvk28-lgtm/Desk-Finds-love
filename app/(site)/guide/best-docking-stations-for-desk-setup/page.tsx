@@ -22,7 +22,6 @@ import {
   type DockProduct,
 } from "@/data/guides/best-docking-stations-for-desk-setup";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

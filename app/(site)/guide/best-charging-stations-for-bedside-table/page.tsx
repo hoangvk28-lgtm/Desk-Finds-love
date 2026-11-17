@@ -10,7 +10,6 @@ import {
   type BedsideProduct,
 } from "@/data/guides/best-charging-stations-for-bedside-table";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle, description: metaDescription,

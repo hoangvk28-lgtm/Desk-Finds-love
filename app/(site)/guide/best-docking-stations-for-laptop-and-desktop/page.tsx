@@ -10,7 +10,6 @@ import {
   type LaptopDesktopDock,
 } from "@/data/guides/best-docking-stations-for-laptop-and-desktop";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle, description: metaDescription,

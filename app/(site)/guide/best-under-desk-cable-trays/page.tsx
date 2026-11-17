@@ -18,7 +18,6 @@ import {
   type CableTray,
 } from "@/data/guides/best-under-desk-cable-trays";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

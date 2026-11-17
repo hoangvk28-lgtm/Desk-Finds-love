@@ -17,7 +17,6 @@ import {
   type GuideProduct,
 } from "@/data/guides/best-lap-desks-for-bed";
 
-export const revalidate = 604800;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

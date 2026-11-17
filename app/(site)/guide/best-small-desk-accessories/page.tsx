@@ -18,7 +18,6 @@ import {
   faq,
 } from "@/data/guides/best-small-desk-accessories";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

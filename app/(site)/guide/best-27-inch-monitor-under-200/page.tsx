@@ -17,7 +17,6 @@ import {
   type Monitor27Under200,
 } from "@/data/guides/best-27-inch-monitor-under-200";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

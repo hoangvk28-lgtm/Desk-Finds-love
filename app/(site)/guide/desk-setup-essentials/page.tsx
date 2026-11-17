@@ -11,7 +11,6 @@ import {
   type EssentialItem,
 } from "@/data/guides/desk-setup-essentials";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle, description: metaDescription,

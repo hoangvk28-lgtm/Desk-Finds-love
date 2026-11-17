@@ -18,7 +18,6 @@ import {
   type NumpadKeyboard,
 } from "@/data/guides/best-small-keyboard-with-numpad";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

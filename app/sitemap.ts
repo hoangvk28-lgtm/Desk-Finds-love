@@ -2,7 +2,6 @@ import type { MetadataRoute } from "next";
 
 // Cache the sitemap for 24h. Without this it rendered on every request (x-vercel-cache: MISS),
 // re-querying Supabase and re-sending 3000+ URLs of XML through Fast Origin Transfer each crawl.
-export const revalidate = 86400;
 import { SITE_URL } from "@/lib/seo";
 import { products as staticProducts } from "@/data/products";
 import { guides as staticGuides } from "@/data/guides";
@@ -66,6 +65,9 @@ async function getPublishedGuideSlugs(): Promise<{ slug: string; updatedAt: stri
 
   return staticEntries;
 }
+
+// Static export: generated once at build time.
+export const dynamic = "force-static";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date().toISOString();

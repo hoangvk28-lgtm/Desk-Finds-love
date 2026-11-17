@@ -10,7 +10,6 @@ import {
   type BudgetWebcam,
 } from "@/data/guides/best-webcam-under-50";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

@@ -18,7 +18,6 @@ import {
   type PhoneGimbal,
 } from "@/data/guides/best-phone-gimbals-for-content-creators";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

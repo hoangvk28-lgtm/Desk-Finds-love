@@ -17,7 +17,6 @@ import {
   type SpaceHack,
 } from "@/data/guides/20-genius-small-space-hacks";
 
-export const revalidate = false;
 
 export const metadata: Metadata = buildMetadata({
   title: metaTitle,

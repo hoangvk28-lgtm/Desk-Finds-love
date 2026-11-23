@@ -57,7 +57,7 @@ export function QuickCompareTable({ products, productNounPlural }: { products: R
       <div className="rounded-2xl border border-border bg-white shadow-card overflow-x-auto">
         <table className="w-full min-w-[720px] text-sm">
           <thead>
-            <tr className="bg-brand text-white text-left">
+            <tr className="bg-ink text-white text-left">
               <th scope="col" className="px-4 py-3 font-semibold">Pick</th>
               <th scope="col" className="px-4 py-3 font-semibold whitespace-nowrap">Best for</th>
               {cols.length > 0

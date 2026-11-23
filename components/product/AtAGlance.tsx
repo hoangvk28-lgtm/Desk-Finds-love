@@ -137,7 +137,7 @@ export function AtAGlance({ items }: AtAGlanceProps) {
   return (
     <div className="my-8 rounded-2xl border border-border bg-white shadow-card overflow-hidden">
       {/* Header */}
-      <div className="px-5 py-4 border-b border-border bg-brand flex items-center gap-2">
+      <div className="px-5 py-4 border-b border-border bg-ink flex items-center gap-2">
         <svg className="w-4 h-4 text-white shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 0 1 0 3.75H5.625a1.875 1.875 0 0 1 0-3.75Z" />
         </svg>

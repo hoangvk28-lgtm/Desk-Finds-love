@@ -6,6 +6,7 @@ import { AtAGlance } from "@/components/product/AtAGlance";
 import { AmazonBountyBanner } from "@/components/affiliate/AmazonBountyBanner";
 import { QuickCompareTable } from "@/components/guide/QuickCompareTable";
 import { MobileProductCTA } from "@/components/guide/MobileProductCTA";
+import { getAuthorBySlug } from "@/data/authors";
 
 export interface GuideProduct {
   id: string;
@@ -111,7 +112,7 @@ function ProductSection({ product }: { product: GuideProduct }) {
     <section id={product.id} className="mb-12 scroll-mt-24">
       <article className="rounded-2xl border border-border bg-white overflow-hidden shadow-card">
         {/* Dark rank header: the name itself is the first click target. */}
-        <header className="flex items-center gap-4 px-5 py-4 bg-brand text-white">
+        <header className="flex items-center gap-4 px-5 py-4 bg-ink text-white">
           <span className="text-3xl font-bold text-white/40 leading-none tabular-nums shrink-0">
             {String(product.rank).padStart(2, "0")}
           </span>
@@ -237,6 +238,7 @@ export function RichGuidePage(props: RichGuidePageProps) {
   const amazonQuery = toAmazonSearchQuery(mainKeyword, slug);
   const productNoun = toProductNounSingular(breadcrumbTitle);
   const productNounPlural = breadcrumbTitle.replace(/^Best\s+/i, "").trim();
+  const author = getAuthorBySlug("jamie-cole");
   const updatedLabel = new Date(lastUpdated).toLocaleDateString("en-US", {
     month: "long",
     year: "numeric",
@@ -260,7 +262,13 @@ export function RichGuidePage(props: RichGuidePageProps) {
     description: metaDescription,
     datePublished: lastUpdated,
     dateModified: lastUpdated,
-    author: { "@type": "Person", name: "Jamie Cole", url: `${SITE_URL}/author/jamie-cole` },
+    author: {
+      "@type": "Person",
+      name: "Jamie Cole",
+      jobTitle: author?.role,
+      url: `${SITE_URL}/author/jamie-cole`,
+      ...(author?.avatarUrl ? { image: `${SITE_URL}${author.avatarUrl}` } : {}),
+    },
     publisher: { "@type": "Organization", name: "DeskFinds", url: SITE_URL },
     mainEntityOfPage: { "@type": "WebPage", "@id": `${SITE_URL}/guide/${slug}` },
     image: heroImage,
@@ -311,8 +319,9 @@ export function RichGuidePage(props: RichGuidePageProps) {
       )}
 
       {/* ── Header band: title, trust signals and the #1 pick above the fold ── */}
-      <section className="bg-brand text-white">
-        <Container className="py-8 sm:py-12">
+      <section className="relative bg-ink text-white overflow-hidden">
+        <div className="absolute inset-0 df-grid-bg" aria-hidden="true" />
+        <Container className="relative py-8 sm:py-12">
           <nav className="flex flex-wrap items-center gap-1.5 text-xs text-white/50 mb-5" aria-label="Breadcrumb">
             <Link prefetch={false} href="/" className="!text-white/70 hover:!text-white transition-colors">Home</Link>
             <span>/</span>
@@ -330,9 +339,22 @@ export function RichGuidePage(props: RichGuidePageProps) {
                 {guideTitle}
               </h1>
               <p className="text-base sm:text-lg !text-white/75 max-w-2xl leading-relaxed">{metaDescription}</p>
-              <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-6 text-xs text-white/60">
-                <Link prefetch={false} href="/author/jamie-cole" className="!text-white/80 hover:!text-accent font-medium transition-colors">
-                  By Jamie Cole, Lead Product Researcher
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-3 mt-6 text-xs text-white/60">
+                <Link prefetch={false} href="/author/jamie-cole" className="group flex items-center gap-3">
+                  {author?.avatarUrl && (
+                    <Image
+                      src={author.avatarUrl}
+                      alt={`${author.name}, ${author.role}`}
+                      width={44}
+                      height={44}
+                      className="w-11 h-11 rounded-full object-cover ring-2 ring-white/25 group-hover:ring-accent transition-colors shrink-0"
+                      unoptimized
+                    />
+                  )}
+                  <span className="leading-tight">
+                    <span className="block text-sm font-semibold !text-white group-hover:!text-accent transition-colors">By Jamie Cole</span>
+                    <span className="block text-xs text-white/55">Lead Product Researcher</span>
+                  </span>
                 </Link>
                 <span>{products.length} options evaluated</span>
                 <span>No paid placement</span>
@@ -478,7 +500,7 @@ export function RichGuidePage(props: RichGuidePageProps) {
                         <div className="overflow-x-auto rounded-2xl border border-border mb-3 bg-white">
                           <table className="w-full text-sm">
                             <thead>
-                              <tr className="bg-brand text-white">
+                              <tr className="bg-ink text-white">
                                 {sub.table.headers.map((h, hi) => (
                                   <th key={hi} className="text-left px-4 py-3 font-semibold">{h}</th>
                                 ))}
@@ -533,10 +555,11 @@ export function RichGuidePage(props: RichGuidePageProps) {
             )}
 
             {/* ── Bottom line: one last buy button per pick, for scroll-to-end readers ── */}
-            <section className="mb-14 rounded-2xl bg-brand text-white p-6 sm:p-8">
-              <p className="df-kicker text-accent mb-2">Bottom line</p>
-              <h2 className="!text-white text-2xl font-bold mb-5">The short version</h2>
-              <ul className="space-y-3">
+            <section className="relative overflow-hidden mb-14 rounded-2xl bg-ink text-white p-6 sm:p-8">
+              <div className="absolute inset-0 df-grid-bg" aria-hidden="true" />
+              <p className="relative df-kicker text-accent mb-2">Bottom line</p>
+              <h2 className="relative !text-white text-2xl font-bold mb-5">The short version</h2>
+              <ul className="relative space-y-3">
                 {products.map((p) => (
                   <li key={p.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-3 last:border-0">
                     <div className="min-w-0">
@@ -551,11 +574,39 @@ export function RichGuidePage(props: RichGuidePageProps) {
                 href={`https://www.amazon.com/s?k=${amazonQuery}&tag=deskfinds0d-20`}
                 target="_blank"
                 rel="noopener noreferrer sponsored"
-                className="inline-block mt-6 text-sm !text-white/70 hover:!text-white underline underline-offset-4"
+                className="relative inline-block mt-6 text-sm !text-white/70 hover:!text-white underline underline-offset-4"
               >
-                Browse more {productNounPlural.toLowerCase()} on Amazon &rarr;
+                {`Browse more ${productNounPlural.toLowerCase()} on Amazon `}&rarr;
               </a>
             </section>
+
+            {author && (
+              <section className="mb-14 rounded-2xl border border-border bg-white p-6 shadow-card flex flex-col sm:flex-row gap-5">
+                <Link prefetch={false} href="/author/jamie-cole" className="shrink-0 self-start">
+                  {author.avatarUrl && (
+                    <Image
+                      src={author.avatarUrl}
+                      alt={`${author.name}, ${author.role}`}
+                      width={96}
+                      height={96}
+                      className="w-24 h-24 rounded-full object-cover ring-4 ring-brand/15 hover:ring-brand/40 transition-colors"
+                      unoptimized
+                    />
+                  )}
+                </Link>
+                <div className="min-w-0">
+                  <p className="df-kicker text-cta mb-1">About the author</p>
+                  <Link prefetch={false} href="/author/jamie-cole" className="text-xl font-bold !text-ink hover:!text-brand transition-colors">
+                    {author.name}
+                  </Link>
+                  <p className="text-sm text-ink-muted mb-2">{author.role}, DeskFinds</p>
+                  <p className="text-[15px] text-ink-secondary leading-relaxed">{author.bio}</p>
+                  <Link prefetch={false} href="/author/jamie-cole" className="inline-block mt-3 text-sm font-semibold text-brand hover:text-brand-dark transition-colors">
+                    More from Jamie &rarr;
+                  </Link>
+                </div>
+              </section>
+            )}
 
             {relatedGuides.length > 0 && (
               <section>

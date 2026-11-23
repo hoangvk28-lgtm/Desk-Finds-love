@@ -21,7 +21,7 @@ export const authors: Author[] = [
     name: "Jamie Cole",
     role: "Lead Product Researcher & Editor",
     isPerson: true,
-    avatarUrl: "", // user will provide after creating profile
+    avatarUrl: "/images/authors/jamie-cole.webp",
     bio: "Jamie Cole spent four years in a 180 sq ft dorm and two in a studio apartment before obsessing over small workspaces. Lead researcher at DeskFinds.",
     longBio:
       "Jamie Cole started researching small-space products out of personal necessity. Four years in a 180 sq ft college dorm taught a hard lesson: most buying guides are written for people with real home offices, not for students trying to fit a monitor, a lamp, and a keyboard on a 48-inch IKEA desk without losing the ability to eat dinner.\n\nAfter graduating, two years in a studio apartment meant every desk setup purchase required solving the same constraint — what's the smallest footprint that solves the actual problem? That question became the foundation for every evaluation at DeskFinds.\n\nJamie's research process prioritizes verified buyer feedback patterns over spec sheets, specifically looking at 1–3 star reviews to surface failure modes that don't appear in aggregate ratings. Every score on DeskFinds reflects this methodology: real constraints, real trade-offs, and honest disclaimers about what the research can and can't tell you.",

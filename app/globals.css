@@ -64,7 +64,10 @@
 
   html {
     -webkit-text-size-adjust: 100%;
-    overflow-x: hidden;
+    /* `overflow-x: hidden` would compute overflow-y to `auto`, making both html
+       and body scroll containers - that is the classic double-scrollbar bug.
+       `clip` clips the same overflow without creating a scroll container. */
+    overflow-x: clip;
   }
 
   body {
@@ -75,7 +78,8 @@
     line-height: 1.75;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    overflow-x: hidden;
+    overflow-x: clip;
+    min-height: 100%;
   }
 
   /* ─── Typography ────────────────────────────────────────── */

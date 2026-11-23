@@ -54,7 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   // with dev traffic that has nothing to do with real visitors. Gate both behind NODE_ENV.
   const isProd = process.env.NODE_ENV === "production";
   return (
-    <html lang="en" className={`${inter.variable} h-full`}>
+    <html lang="en" className={inter.variable}>
       <head>
         {isProd && (
           <>
@@ -75,7 +75,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </>
         )}
       </head>
-      <body className="h-full antialiased">
+      <body className="antialiased">
         <ScrollToTop />
         {children}
       </body>

@@ -23,17 +23,21 @@ function AtAGlanceRow({ item }: { item: AtAGlanceItem }) {
     <div className="border-b border-border last:border-0">
       {/* Main row */}
       <div className="flex items-center gap-4 py-4 px-1">
-        {/* Thumbnail */}
-        <div className="shrink-0 w-16 h-16 rounded-lg bg-bg border border-border overflow-hidden flex items-center justify-center">
+        {/* Thumbnail - jumps to the full review, same as the name below it */}
+        <a
+          href={`#${item.anchorId}`}
+          aria-label={`Jump to the ${item.name} review`}
+          className="group/thumb shrink-0 w-16 h-16 rounded-lg bg-bg border border-border overflow-hidden flex items-center justify-center transition-colors hover:border-brand hover:bg-brand-light"
+        >
           <Image
             src={item.imageUrl}
             alt={item.name}
             width={64}
             height={64}
-            className="object-contain w-full h-full p-1"
+            className="object-contain w-full h-full p-1 transition-transform duration-200 group-hover/thumb:scale-110"
             unoptimized
           />
-        </div>
+        </a>
 
         {/* Info */}
         <div className="flex-1 min-w-0">
@@ -45,7 +49,12 @@ function AtAGlanceRow({ item }: { item: AtAGlanceItem }) {
               {item.badge}
             </a>
           )}
-          <p className="text-sm font-semibold text-ink leading-snug line-clamp-2">{item.name}</p>
+          <a
+            href={`#${item.anchorId}`}
+            className="block text-sm font-semibold text-ink leading-snug line-clamp-2 hover:text-brand hover:underline underline-offset-2 decoration-brand/40 transition-colors"
+          >
+            {item.name}
+          </a>
           <a
             href={`#${item.anchorId}`}
             className="text-[11px] text-ink-muted hover:text-brand transition-colors mt-0.5 inline-block"

@@ -4,6 +4,8 @@ import { Container } from "@/components/layout/Container";
 import { SITE_URL } from "@/lib/seo";
 import { AtAGlance } from "@/components/product/AtAGlance";
 import { AmazonBountyBanner } from "@/components/affiliate/AmazonBountyBanner";
+import { QuickCompareTable } from "@/components/guide/QuickCompareTable";
+import { MobileProductCTA } from "@/components/guide/MobileProductCTA";
 
 export interface GuideProduct {
   id: string;
@@ -19,6 +21,9 @@ export interface GuideProduct {
   amazonUrl: string;
   description: string;
   specs: string[];
+  specList?: { label: string; value: string }[];
+  ctaLabel?: string;
+  shortCtaLabel?: string;
   pros: string[];
   cons: string[];
   bestFor: string;
@@ -47,6 +52,7 @@ export interface RichGuidePageProps {
   buyingCriteria?: { criterion: string; explanation: string }[];
   faq?: { q: string; a: string }[];
   relatedGuides?: { href: string; title: string }[];
+  expertTake?: string;
 }
 
 // Mirrors scripts/generate-guide-page.mjs's toBreadcrumbTitle/toAmazonSearchQuery/
@@ -57,7 +63,7 @@ function toBreadcrumbTitle(guideTitle: string) {
 }
 
 function toAmazonSearchQuery(mainKeyword: string | undefined, slug: string) {
-  const kw = mainKeyword || slug.replace(/^best-/, "").replace(/-/g, " ");
+  const kw = (mainKeyword || slug.replace(/-/g, " ")).trim();
   return kw.replace(/\s+/g, "+");
 }
 
@@ -69,93 +75,142 @@ function toProductNounSingular(breadcrumbTitle: string) {
   return words;
 }
 
-function ProductSection({ product }: { product: GuideProduct }) {
+const AMAZON_ICON = (
+  <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M12.26 18.36C9.18 20.34 4.76 21.38 1 20.16c-.38-.13-.33-.44.08-.35 3.47.67 7.77-.07 10.6-1.82.47-.27.87.17.58.37zm1.06-1.17c-.43-.56-2.85-.27-3.94-.13-.33.04-.38-.25-.08-.46 1.93-1.36 5.1-.97 5.47-.51.37.46-.1 3.63-1.91 5.14-.28.23-.54.11-.42-.2.41-.98 1.32-3.28.88-3.84z" />
+  </svg>
+);
+
+function BuyButton({ href, label, compact = false }: { href: string; label: string; compact?: boolean }) {
   return (
-    <section id={product.id} className="mb-14 scroll-mt-20">
-      <div className="flex flex-wrap items-center gap-2 mb-4">
-        <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest text-white bg-brand shrink-0">
-          {product.badge}
-        </span>
-        <h2 className="text-2xl font-bold text-ink tracking-tight min-w-0 break-words">
-          {product.name}
-        </h2>
-      </div>
-      <div className="rounded-2xl border border-border bg-white overflow-hidden shadow-card">
-        <div className="flex flex-col sm:flex-row gap-5 p-5">
-          <a
-            href={product.amazonUrl}
-            target="_blank"
-            rel="noopener noreferrer sponsored"
-            className="shrink-0 flex items-center justify-center w-full sm:w-60 h-52 rounded-xl border border-border bg-gray-50 overflow-hidden hover:opacity-90 transition-opacity"
-          >
-            <Image
-              src={product.imageUrl}
-              alt={product.name}
-              width={220}
-              height={200}
-              className="object-cover w-full h-full"
-              unoptimized
-            />
-          </a>
-          <div className="flex-1 min-w-0 flex flex-col gap-3">
-            <div className="flex flex-wrap gap-2">
-              {product.specs.map((spec, i) => (
-                <span key={i} className="text-xs px-2.5 py-1 rounded-lg bg-gray-100 text-ink-secondary font-medium">
-                  {spec}
-                </span>
-              ))}
-            </div>
-            <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-brand mb-1">About this pick</p>
-              {product.description.split("\n\n").map((para, i) => (
-                <p key={i} className={"text-sm text-ink-secondary leading-relaxed indent-6 " + (i > 0 ? "mt-2" : "")}>
-                  {para}
-                </p>
-              ))}
-            </div>
-            <p className="text-xs text-ink-muted">
-              <span className="font-semibold text-ink">Best for:</span>{" "}
-              {product.bestFor}
-            </p>
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer sponsored"
+      className={`inline-flex items-center justify-center gap-2 rounded-btn font-bold text-white bg-cta hover:bg-cta-dark shadow-card transition-colors ${compact ? "px-3 py-2 text-xs" : "px-5 py-3 text-sm w-full sm:w-auto"}`}
+    >
+      {AMAZON_ICON}
+      {label}
+    </a>
+  );
+}
+
+function SectionTitle({ kicker, title, sub, id }: { kicker: string; title: string; sub?: string; id?: string }) {
+  return (
+    <div className="mb-6" id={id}>
+      <p className="df-kicker text-cta mb-1.5">{kicker}</p>
+      <h2 className="text-2xl sm:text-3xl font-bold text-ink tracking-tight">{title}</h2>
+      {sub && <p className="text-sm text-ink-secondary mt-2 max-w-2xl">{sub}</p>}
+    </div>
+  );
+}
+
+function ProductSection({ product }: { product: GuideProduct }) {
+  const ctaLabel = product.ctaLabel ?? "Check price on Amazon";
+  return (
+    <section id={product.id} className="mb-12 scroll-mt-24">
+      <article className="rounded-2xl border border-border bg-white overflow-hidden shadow-card">
+        {/* Dark rank header: the name itself is the first click target. */}
+        <header className="flex items-center gap-4 px-5 py-4 bg-brand text-white">
+          <span className="text-3xl font-bold text-white/40 leading-none tabular-nums shrink-0">
+            {String(product.rank).padStart(2, "0")}
+          </span>
+          <div className="min-w-0">
+            <span className="df-kicker !text-white/60 block">{product.badge}</span>
+            <h3 className="text-lg sm:text-xl font-bold leading-snug break-words">
+              <a
+                href={product.amazonUrl}
+                target="_blank"
+                rel="noopener noreferrer sponsored"
+                className="!text-white hover:!text-accent underline-offset-4 hover:underline decoration-2 transition-colors"
+              >
+                {product.name}
+              </a>
+            </h3>
+          </div>
+        </header>
+
+        <div className="grid md:grid-cols-[260px_1fr]">
+          <div className="p-5 border-b md:border-b-0 md:border-r border-border flex flex-col gap-4">
             <a
               href={product.amazonUrl}
               target="_blank"
               rel="noopener noreferrer sponsored"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white hover:opacity-90 transition-opacity w-fit mt-auto"
-              style={{ background: "#FF9900" }}
+              className="group flex items-center justify-center h-56 rounded-xl bg-white border border-border hover:border-cta transition-colors overflow-hidden"
             >
-              <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12.26 18.36C9.18 20.34 4.76 21.38 1 20.16c-.38-.13-.33-.44.08-.35 3.47.67 7.77-.07 10.6-1.82.47-.27.87.17.58.37zm1.06-1.17c-.43-.56-2.85-.27-3.94-.13-.33.04-.38-.25-.08-.46 1.93-1.36 5.1-.97 5.47-.51.37.46-.1 3.63-1.91 5.14-.28.23-.54.11-.42-.2.41-.98 1.32-3.28.88-3.84z" />
-              </svg>
-              Check price on Amazon
+              <Image
+                src={product.imageUrl}
+                alt={product.name}
+                width={240}
+                height={220}
+                className="object-contain w-full h-full transition-transform duration-300 group-hover:scale-105"
+                unoptimized
+              />
             </a>
+            {product.specs.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {product.specs.map((spec, i) => (
+                  <span key={i} className="text-[11px] px-2 py-1 rounded bg-bg border border-border text-ink-secondary font-medium">
+                    {spec}
+                  </span>
+                ))}
+              </div>
+            )}
+            <BuyButton href={product.amazonUrl} label={ctaLabel} />
+          </div>
+
+          <div className="p-5 sm:p-6">
+            <div className="mb-4 rounded-xl bg-cta-light border border-cta/20 px-4 py-3 text-sm text-ink">
+              <span className="font-bold">Best for:</span> {product.bestFor}
+            </div>
+            <div className="space-y-3 mb-5">
+              {product.description.split("\n\n").map((para, i) => (
+                <p key={i} className="text-[15px] text-ink-secondary leading-relaxed">{para}</p>
+              ))}
+            </div>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div className="rounded-xl border border-green-200 bg-green-50/60 p-4">
+                <p className="df-kicker text-green-700 mb-2">What works</p>
+                <ul className="space-y-1.5">
+                  {product.pros.map((pro, i) => (
+                    <li key={i} className="flex gap-2 text-sm text-ink">
+                      <span className="text-green-700 font-bold" aria-hidden="true">+</span>{pro}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-4">
+                <p className="df-kicker text-amber-700 mb-2">Watch out for</p>
+                <ul className="space-y-1.5">
+                  {product.cons.map((con, i) => (
+                    <li key={i} className="flex gap-2 text-sm text-ink">
+                      <span className="text-amber-700 font-bold" aria-hidden="true">&minus;</span>{con}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            {/* Second CTA under the pros/cons, where the decision is actually made. */}
+            <div className="mt-5 md:hidden">
+              <BuyButton href={product.amazonUrl} label={ctaLabel} />
+            </div>
           </div>
         </div>
-        <div className="border-t border-border grid sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-border">
-          <div className="p-4">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-cta mb-3">Pros</p>
-            <ul className="space-y-1.5">
-              {product.pros.map((pro, i) => (
-                <li key={i} className="flex items-start gap-1.5 text-xs text-ink">
-                  <span className="mt-0.5 w-3.5 h-3.5 rounded-full bg-cta-light text-cta flex items-center justify-center shrink-0 font-bold text-[9px]">+</span>
-                  {pro}
-                </li>
+
+        {product.specList && product.specList.length > 0 && (
+          <div className="border-t border-border bg-bg/60">
+            <p className="df-kicker text-ink-muted px-5 pt-4">Spec sheet</p>
+            <dl className="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-6 px-5 pb-4 pt-2">
+              {product.specList.map((spec, i) => (
+                <div key={i} className="flex justify-between gap-3 py-2 border-b border-dashed border-border-dark/60 text-sm">
+                  <dt className="text-ink-secondary">{spec.label}</dt>
+                  <dd className="text-ink font-medium text-right">{spec.value}</dd>
+                </div>
               ))}
-            </ul>
+            </dl>
           </div>
-          <div className="p-4">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-accent-dark mb-3">Cons</p>
-            <ul className="space-y-1.5">
-              {product.cons.map((con, i) => (
-                <li key={i} className="flex items-start gap-1.5 text-xs text-ink">
-                  <span className="mt-0.5 w-3.5 h-3.5 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center shrink-0 font-bold text-[9px]">&minus;</span>
-                  {con}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </div>
+        )}
+      </article>
     </section>
   );
 }
@@ -163,7 +218,7 @@ function ProductSection({ product }: { product: GuideProduct }) {
 export function RichGuidePage(props: RichGuidePageProps) {
   const {
     slug, guideTitle, metaDescription, mainKeyword, readTime,
-    heroImage, products, lastUpdated,
+    heroImage, products, lastUpdated, expertTake,
   } = props;
   const introParagraphs = props.introParagraphs ?? [];
   const howWeEvaluated = props.howWeEvaluated ?? [];
@@ -182,6 +237,21 @@ export function RichGuidePage(props: RichGuidePageProps) {
   const amazonQuery = toAmazonSearchQuery(mainKeyword, slug);
   const productNoun = toProductNounSingular(breadcrumbTitle);
   const productNounPlural = breadcrumbTitle.replace(/^Best\s+/i, "").trim();
+  const updatedLabel = new Date(lastUpdated).toLocaleDateString("en-US", {
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+
+  const toc = [
+    { id: "top-picks", label: "Top picks" },
+    { id: "compare", label: "Compare all", show: products.length >= 2 },
+    { id: "buying-criteria", label: "What to look for", show: buyingCriteria.length > 0 },
+    { id: "reviews", label: "Detailed reviews" },
+    { id: "how-we-evaluated", label: "How we evaluated", show: howWeEvaluated.length > 0 },
+    { id: "how-to-choose", label: "How to choose", show: howToChoose.length > 0 },
+    { id: "faq", label: "FAQ", show: faq.length > 0 },
+  ].filter((t) => t.show !== false);
 
   const articleSchema = {
     "@context": "https://schema.org",
@@ -193,6 +263,7 @@ export function RichGuidePage(props: RichGuidePageProps) {
     author: { "@type": "Person", name: "Jamie Cole", url: `${SITE_URL}/author/jamie-cole` },
     publisher: { "@type": "Organization", name: "DeskFinds", url: SITE_URL },
     mainEntityOfPage: { "@type": "WebPage", "@id": `${SITE_URL}/guide/${slug}` },
+    image: heroImage,
     about: [{ "@type": "Thing", name: breadcrumbTitle }],
   };
 
@@ -220,278 +291,325 @@ export function RichGuidePage(props: RichGuidePageProps) {
     })),
   };
 
+  const faqSchema = faq.length > 0 ? {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faq.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  } : null;
+
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }} />
-      <Container className="py-12 max-w-4xl">
-        <nav className="flex items-center gap-1.5 text-xs text-ink-muted mb-6">
-          <Link prefetch={false} href="/" className="hover:text-brand transition-colors">Home</Link>
-          <span>/</span>
-          <Link prefetch={false} href="/guide" className="hover:text-brand transition-colors">Buying Guides</Link>
-          <span>/</span>
-          <span className="text-ink">{breadcrumbTitle}</span>
-        </nav>
+      {faqSchema && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+      )}
 
-        <header className="mb-8">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-xs font-bold uppercase tracking-widest text-brand">Buying Guide</span>
-            <span className="text-ink-muted">&middot;</span>
-            <span className="text-xs text-ink-muted">{readTime} read</span>
-            <span className="text-ink-muted">&middot;</span>
-            <span className="text-xs text-ink-muted">
-              Updated {new Date(lastUpdated).toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" })}
-            </span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-ink leading-tight tracking-tight mb-4">
-            {guideTitle}
-          </h1>
-          <p className="text-lg text-ink-secondary leading-relaxed max-w-3xl">
-            {metaDescription}
-          </p>
-          <div className="flex flex-wrap items-center gap-4 mt-5 pt-5 border-t border-border">
-            <div className="flex items-center gap-2 text-sm text-ink-secondary">
-              <div className="w-7 h-7 rounded-full bg-brand-muted flex items-center justify-center">
-                <svg className="w-4 h-4 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-                </svg>
+      {/* ── Header band: title, trust signals and the #1 pick above the fold ── */}
+      <section className="bg-brand text-white">
+        <Container className="py-8 sm:py-12">
+          <nav className="flex flex-wrap items-center gap-1.5 text-xs text-white/50 mb-5" aria-label="Breadcrumb">
+            <Link prefetch={false} href="/" className="!text-white/70 hover:!text-white transition-colors">Home</Link>
+            <span>/</span>
+            <Link prefetch={false} href="/guide" className="!text-white/70 hover:!text-white transition-colors">Buying Guides</Link>
+            <span>/</span>
+            <span className="text-white/80">{breadcrumbTitle}</span>
+          </nav>
+
+          <div className="grid lg:grid-cols-[1fr_340px] gap-8 lg:gap-12 items-center">
+            <div>
+              <p className="df-kicker text-accent mb-3">
+                Buying guide &middot; {readTime} read &middot; Updated {updatedLabel}
+              </p>
+              <h1 className="!text-white text-3xl sm:text-4xl lg:text-5xl font-bold leading-[1.1] tracking-tight mb-4">
+                {guideTitle}
+              </h1>
+              <p className="text-base sm:text-lg !text-white/75 max-w-2xl leading-relaxed">{metaDescription}</p>
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-6 text-xs text-white/60">
+                <Link prefetch={false} href="/author/jamie-cole" className="!text-white/80 hover:!text-accent font-medium transition-colors">
+                  By Jamie Cole, Lead Product Researcher
+                </Link>
+                <span>{products.length} options evaluated</span>
+                <span>No paid placement</span>
               </div>
-              <Link prefetch={false} href="/author/jamie-cole" className="text-brand font-medium hover:underline">Jamie Cole, Lead Product Researcher</Link>
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-ink-muted">
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-              </svg>
-              {products.length} options evaluated
-            </div>
+
+            {/* Top-pick card: a buy button inside the first viewport on every guide. */}
+            {products[0] && (
+              <aside className="rounded-2xl bg-white p-4 shadow-card">
+                <p className="df-kicker text-cta mb-2">Our top pick</p>
+                <a
+                  href={products[0].amazonUrl}
+                  target="_blank"
+                  rel="noopener noreferrer sponsored"
+                  className="block h-40 sm:h-44 mb-3"
+                >
+                  <Image
+                    src={products[0].imageUrl || heroImage}
+                    alt={products[0].name}
+                    width={360}
+                    height={220}
+                    className="w-full h-full object-contain"
+                    priority
+                    unoptimized
+                  />
+                </a>
+                <p className="text-sm font-bold text-ink leading-snug mb-1">{products[0].name}</p>
+                <p className="text-xs text-ink-muted mb-3 line-clamp-2">{products[0].bestFor}</p>
+                <BuyButton href={products[0].amazonUrl} label={products[0].ctaLabel ?? "Check price on Amazon"} />
+                <a href={`#${products[0].id}`} className="block mt-2 text-center text-xs text-ink-muted hover:text-brand transition-colors">
+                  Read why it won &darr;
+                </a>
+              </aside>
+            )}
           </div>
-        </header>
+        </Container>
+      </section>
 
-        <div className="mb-8 p-4 rounded-xl bg-bg border border-border text-xs text-ink-secondary">
-          <strong className="text-ink">Quick note:</strong> We may earn a commission when you buy through Amazon links. This guide is based on product specs, buyer feedback, use cases, and comparison criteria, not paid placement.{" "}
-          <Link prefetch={false} href="/affiliate-disclosure" className="text-brand hover:underline">Affiliate disclosure</Link>.
-        </div>
-
-        <AmazonBountyBanner variant={bountyVariant} />
-
-        <div className="rounded-2xl overflow-hidden border border-border mb-10 bg-white h-56 sm:h-64 md:hidden flex items-center justify-center p-3">
-          <Image src={heroImage} alt={breadcrumbTitle} width={900} height={420} className="w-full h-full object-contain" priority unoptimized />
-        </div>
-        <div
-          className="hidden md:grid rounded-2xl overflow-hidden border border-border mb-10 gap-px bg-border"
-          style={{ gridTemplateColumns: `repeat(${products.length}, minmax(0,1fr))` }}
-        >
-          {products.map((product, i) => (
-            <div key={product.id} className="h-56 bg-white flex items-center justify-center p-4">
-              <Image
-                src={product.imageUrl}
-                alt={product.name}
-                width={300}
-                height={300}
-                className="w-full h-full object-contain"
-                priority={i === 0}
-                unoptimized
-              />
+      <Container className="py-10">
+        <div className="grid lg:grid-cols-[minmax(0,1fr)_240px] gap-10">
+          <div className="min-w-0">
+            <div className="mb-6 p-3 rounded-xl bg-bg border border-border text-xs text-ink-secondary">
+              <strong className="text-ink">Quick note:</strong> We may earn a commission when you buy through Amazon links. Picks are based on specs, buyer feedback and use cases, never paid placement.{" "}
+              <Link prefetch={false} href="/affiliate-disclosure" className="text-brand hover:underline">Affiliate disclosure</Link>.
             </div>
-          ))}
-        </div>
 
-        <AtAGlance
-          items={products.map((product) => ({
-            rank: product.rank,
-            badge: product.badge,
-            name: product.name,
-            brand: "",
-            imageUrl: product.imageUrl,
-            affiliateUrl: product.amazonUrl,
-            price: "",
-            pros: product.pros.map((text) => ({ text })),
-            cons: product.cons.map((text) => ({ text, severity: "minor" as const })),
-            anchorId: product.id,
-          }))}
-        />
+            {expertTake && (
+              <aside className="mb-8 rounded-2xl border-l-4 border-cta bg-white p-5 sm:p-6 shadow-card">
+                <p className="df-kicker text-cta mb-2">Editor&apos;s take</p>
+                <p className="text-[17px] leading-relaxed text-ink">{expertTake}</p>
+              </aside>
+            )}
 
-        <section className="mb-10 space-y-4 text-base text-ink-secondary leading-relaxed">
-          {introParagraphs.map((p, i) => <p key={i}>{p}</p>)}
-        </section>
+            <section id="top-picks" className="mb-10 scroll-mt-24">
+              <SectionTitle kicker="At a glance" title="Our top picks" />
+              <AtAGlance
+                items={products.map((product) => ({
+                  rank: product.rank,
+                  badge: product.badge,
+                  name: product.name,
+                  brand: "",
+                  imageUrl: product.imageUrl,
+                  affiliateUrl: product.amazonUrl,
+                  price: "",
+                  pros: product.pros.map((text) => ({ text })),
+                  cons: product.cons.map((text) => ({ text, severity: "minor" as const })),
+                  anchorId: product.id,
+                }))}
+              />
+            </section>
 
-        {buyingCriteria.length > 0 && (
-          <section className="mb-12 p-6 rounded-2xl border border-border bg-white">
-            <h2 className="text-xl font-bold text-ink mb-1 tracking-tight">{buyingCriteria.length} Criteria to Look For Before Buying a {productNoun}</h2>
-            <p className="text-sm text-ink-muted mb-5">Key buying criteria so you get the right fit the first time.</p>
-            <div className="grid sm:grid-cols-2 gap-4">
-              {buyingCriteria.map((item, i) => (
-                <div key={i} className="p-4 rounded-xl border border-border bg-bg">
-                  <p className="text-sm font-bold text-ink mb-1.5">{item.criterion}</p>
-                  {item.explanation.split("\n\n").map((para, pi) => (
-                    <p key={pi} className={"text-sm text-ink-secondary leading-relaxed " + (pi > 0 ? "mt-2" : "")}>
-                      {para}
-                    </p>
+            <QuickCompareTable products={products} productNounPlural={productNounPlural} />
+
+            {introParagraphs.length > 0 && (
+              <section className="mb-12 space-y-4 text-[17px] text-ink-secondary leading-relaxed">
+                {introParagraphs.map((p, i) => <p key={i}>{p}</p>)}
+              </section>
+            )}
+
+            <AmazonBountyBanner variant={bountyVariant} />
+
+            {buyingCriteria.length > 0 && (
+              <section id="buying-criteria" className="mb-14 scroll-mt-24">
+                <SectionTitle
+                  kicker="Before you buy"
+                  title={`${buyingCriteria.length} Criteria to Look For Before Buying ${/^[aeiou]/i.test(productNoun) ? "an" : "a"} ${productNoun}`}
+                />
+                <ol className="space-y-4">
+                  {buyingCriteria.map((item, i) => (
+                    <li key={i} className="rounded-2xl border border-border bg-white p-5 flex gap-4 shadow-card">
+                      <span className="shrink-0 w-8 h-8 rounded-lg bg-brand text-white text-xs font-bold flex items-center justify-center tabular-nums">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <div className="min-w-0">
+                        <h3 className="text-lg font-bold text-ink mb-1.5">{item.criterion}</h3>
+                        {item.explanation.split("\n\n").map((para, j) => (
+                          <p key={j} className={`text-[15px] text-ink-secondary leading-relaxed ${j > 0 ? "mt-2" : ""}`}>{para}</p>
+                        ))}
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            )}
+
+            <div id="reviews" className="scroll-mt-24">
+              <SectionTitle
+                kicker="Detailed reviews"
+                title={`The ${products.length} best ${productNounPlural.toLowerCase()}, explained`}
+              />
+              {products.map((product) => (
+                <ProductSection key={product.id} product={product} />
+              ))}
+            </div>
+
+            {howWeEvaluated.length > 0 && (
+              <section id="how-we-evaluated" className="mb-14 scroll-mt-24">
+                <SectionTitle
+                  kicker="Methodology"
+                  title={`How We Evaluated These ${productNounPlural}`}
+                  sub={`Each pick was assessed across ${howWeEvaluated.length} criteria weighted for real-world use.`}
+                />
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {howWeEvaluated.map((item, i) => (
+                    <div key={i} className="rounded-2xl border border-border bg-white p-5">
+                      <h3 className="text-base font-bold text-ink mb-1.5">{item.title}</h3>
+                      <p className="text-sm text-ink-secondary leading-relaxed">{item.description}</p>
+                    </div>
                   ))}
                 </div>
-              ))}
-            </div>
-          </section>
-        )}
+              </section>
+            )}
 
-        <nav className="mb-12 p-4 rounded-xl bg-bg border border-border">
-          <p className="text-xs font-bold uppercase tracking-widest text-ink-muted mb-3">Jump to pick</p>
-          <div className="flex flex-wrap gap-2">
-            {products.map((p) => (
-              <a key={p.id} href={`#${p.id}`} className="text-xs font-medium px-3 py-1.5 rounded-lg bg-white border border-border text-ink-secondary hover:text-brand hover:border-brand transition-colors">
-                #{p.rank} {p.badge}
-              </a>
-            ))}
-            <a href="#faq" className="text-xs font-medium px-3 py-1.5 rounded-lg bg-white border border-border text-ink-secondary hover:text-brand hover:border-brand transition-colors">FAQ</a>
-          </div>
-        </nav>
-
-        <h2 className="text-2xl font-bold text-ink mb-8 tracking-tight">{guideTitle}</h2>
-
-        {products.map((product) => (
-          <ProductSection key={product.id} product={product} />
-        ))}
-
-        {howWeEvaluated.length > 0 && (
-          <section className="mb-12 p-6 rounded-2xl border border-border bg-white">
-            <h2 className="text-xl font-bold text-ink mb-1 tracking-tight">How We Evaluated These {productNounPlural}</h2>
-            <p className="text-sm text-ink-muted mb-5">Each pick was assessed across {howWeEvaluated.length} criteria weighted for real-world use.</p>
-            <div className="grid sm:grid-cols-2 gap-4">
-              {howWeEvaluated.map((item, i) => (
-                <div key={i} className="p-4 rounded-xl border border-border bg-bg">
-                  <p className="text-sm font-bold text-ink mb-1.5">{item.title}</p>
-                  <p className="text-sm text-ink-secondary leading-relaxed">{item.description}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {howToChoose.length > 0 && (
-          <section className="mb-14">
-            <h2 className="text-2xl font-bold text-ink mb-6 tracking-tight">How to Choose the Right {productNounPlural}</h2>
-            <div className="space-y-8">
-              {howToChoose.map((sub, i) => (
-                <div key={i}>
-                  <h3 className="text-lg font-bold text-ink mb-3">{sub.subheading}</h3>
-                  {sub.intro && (
-                    <p className="text-sm text-ink-secondary leading-relaxed mb-3">{sub.intro}</p>
-                  )}
-                  {sub.table && (
-                    <div className="overflow-x-auto rounded-xl border border-border mb-2">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="bg-brand text-white">
-                            {sub.table.headers.map((h, hi) => (
-                              <th key={hi} className="text-left px-4 py-3 font-semibold">{h}</th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {sub.table.rows.map((row, ri) => (
-                            <tr key={ri} className={ri % 2 === 0 ? "bg-white" : "bg-bg"}>
-                              {row.map((cell, ci) => (
-                                <td key={ci} className="px-4 py-3 text-ink-secondary text-xs">{cell}</td>
+            {howToChoose.length > 0 && (
+              <section id="how-to-choose" className="mb-14 scroll-mt-24">
+                <SectionTitle kicker="Decision guide" title={`How to Choose the Right ${productNounPlural}`} />
+                <div className="space-y-10">
+                  {howToChoose.map((sub, i) => (
+                    <div key={i}>
+                      <h3 className="text-xl font-bold text-ink mb-3">{sub.subheading}</h3>
+                      {sub.intro && <p className="text-[15px] text-ink-secondary leading-relaxed mb-4">{sub.intro}</p>}
+                      {sub.table && (
+                        <div className="overflow-x-auto rounded-2xl border border-border mb-3 bg-white">
+                          <table className="w-full text-sm">
+                            <thead>
+                              <tr className="bg-brand text-white">
+                                {sub.table.headers.map((h, hi) => (
+                                  <th key={hi} className="text-left px-4 py-3 font-semibold">{h}</th>
+                                ))}
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-border">
+                              {sub.table.rows.map((row, ri) => (
+                                <tr key={ri} className="hover:bg-cta-light/40 transition-colors">
+                                  {row.map((cell, ci) => (
+                                    <td key={ci} className={`px-4 py-3 align-top ${ci === 0 ? "text-ink font-medium" : "text-ink-secondary"}`}>{cell}</td>
+                                  ))}
+                                </tr>
                               ))}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                  {sub.cards && (
-                    <div className="grid sm:grid-cols-2 gap-3 mb-2">
-                      {sub.cards.map((c, ci) => (
-                        <div key={ci} className="p-4 rounded-xl border border-border bg-bg">
-                          <p className="text-sm font-bold text-ink mb-1">{c.label}</p>
-                          <p className="text-sm text-ink-secondary leading-relaxed">{c.text}</p>
+                            </tbody>
+                          </table>
                         </div>
-                      ))}
+                      )}
+                      {sub.cards && (
+                        <div className="grid sm:grid-cols-2 gap-4 mb-3">
+                          {sub.cards.map((c, ci) => (
+                            <div key={ci} className="rounded-2xl border border-border border-t-4 border-t-cta bg-white p-5">
+                              <p className="font-bold text-ink mb-1.5">{c.label}</p>
+                              <p className="text-sm text-ink-secondary leading-relaxed">{c.text}</p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {sub.note && (
+                        <p className="text-sm text-ink bg-accent-light/60 border border-accent/30 rounded-xl px-4 py-3">{sub.note}</p>
+                      )}
                     </div>
-                  )}
-                  {sub.note && (
-                    <p className="text-xs text-ink-muted leading-relaxed">{sub.note}</p>
-                  )}
+                  ))}
                 </div>
-              ))}
-            </div>
-          </section>
-        )}
+              </section>
+            )}
 
-        <section id="faq" className="mb-14 scroll-mt-20">
-          <h2 className="text-2xl font-bold text-ink mb-6 tracking-tight">Frequently Asked Questions</h2>
-          <div className="space-y-4">
-            {faq.map((item, i) => (
-              <div key={i} className="p-5 rounded-xl border border-border bg-white">
-                <p className="font-bold text-ink text-sm mb-2">{item.q}</p>
-                <p className="text-sm text-ink-secondary leading-relaxed">{item.a}</p>
-              </div>
-            ))}
+            {faq.length > 0 && (
+              <section id="faq" className="mb-14 scroll-mt-24">
+                <SectionTitle kicker="FAQ" title="Frequently Asked Questions" />
+                <div className="space-y-3">
+                  {faq.map((item, i) => (
+                    <details key={i} className="group rounded-2xl border border-border bg-white open:shadow-card" open={i === 0}>
+                      <summary className="flex items-center justify-between gap-4 cursor-pointer list-none px-5 py-4 font-bold text-ink">
+                        {item.q}
+                        <span className="text-cta text-xl leading-none transition-transform group-open:rotate-45" aria-hidden="true">+</span>
+                      </summary>
+                      <p className="px-5 pb-5 text-[15px] text-ink-secondary leading-relaxed">{item.a}</p>
+                    </details>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* ── Bottom line: one last buy button per pick, for scroll-to-end readers ── */}
+            <section className="mb-14 rounded-2xl bg-brand text-white p-6 sm:p-8">
+              <p className="df-kicker text-accent mb-2">Bottom line</p>
+              <h2 className="!text-white text-2xl font-bold mb-5">The short version</h2>
+              <ul className="space-y-3">
+                {products.map((p) => (
+                  <li key={p.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-3 last:border-0">
+                    <div className="min-w-0">
+                      <p className="df-kicker !text-white/50">{p.badge}</p>
+                      <a href={`#${p.id}`} className="!text-white font-semibold hover:!text-accent transition-colors">{p.name}</a>
+                    </div>
+                    <BuyButton href={p.amazonUrl} label={p.shortCtaLabel ?? "Check price"} compact />
+                  </li>
+                ))}
+              </ul>
+              <a
+                href={`https://www.amazon.com/s?k=${amazonQuery}&tag=deskfinds0d-20`}
+                target="_blank"
+                rel="noopener noreferrer sponsored"
+                className="inline-block mt-6 text-sm !text-white/70 hover:!text-white underline underline-offset-4"
+              >
+                Browse more {productNounPlural.toLowerCase()} on Amazon &rarr;
+              </a>
+            </section>
+
+            {relatedGuides.length > 0 && (
+              <section>
+                <SectionTitle kicker="Keep reading" title="Related guides" />
+                <div className="grid sm:grid-cols-2 gap-3">
+                  {relatedGuides.map((g) => {
+                    const isExternal = /^https?:\/\//.test(g.href);
+                    const cardClass = "flex items-center justify-between gap-3 p-4 rounded-2xl border border-border bg-white hover:border-cta transition-colors group";
+                    const inner = (
+                      <>
+                        <span className="font-semibold text-ink text-sm group-hover:text-cta transition-colors">{g.title}</span>
+                        <span className="text-cta shrink-0" aria-hidden="true">&rarr;</span>
+                      </>
+                    );
+                    return isExternal ? (
+                      <a key={g.href} href={g.href} target="_blank" rel="noopener noreferrer" className={cardClass}>{inner}</a>
+                    ) : (
+                      <Link prefetch={false} key={g.href} href={g.href} className={cardClass}>{inner}</Link>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
           </div>
-        </section>
 
-        <section className="mb-14 p-6 rounded-2xl border border-border bg-white">
-          <h2 className="text-xl font-bold text-ink mb-5 tracking-tight">Bottom Line</h2>
-          <div className="space-y-4">
-            <div className="flex items-start gap-3">
-              <span className="w-2 h-2 rounded-full bg-brand mt-2 shrink-0" />
-              <p className="text-sm text-ink-secondary">
-                <strong className="text-ink">best overall:</strong>{" "}
-                <a href={`#${products[0]?.id}`} className="font-bold text-ink hover:text-brand transition-colors">{products[0]?.name}</a>
-                {" "}- {products[0]?.badge.toLowerCase()} pick in this roundup.
-              </p>
-            </div>
-            <p className="text-sm text-ink-secondary pl-5">See the full rankings above for all picks with pros, cons, and best-for summaries.</p>
-          </div>
-        </section>
-
-        <section className="mb-14 p-6 rounded-2xl flex flex-col items-center text-center" style={{ background: "linear-gradient(135deg, #FF9900 0%, #e68900 100%)" }}>
-          <h2 className="text-xl font-bold text-white mb-2">Browse on Amazon</h2>
-          <p className="text-white/90 text-sm mb-5">All Prime-eligible options with current pricing.</p>
-          <a href={`https://www.amazon.com/s?k=${amazonQuery}&tag=deskfinds0d-20`} target="_blank" rel="noopener noreferrer sponsored" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white font-bold text-sm hover:bg-gray-50 transition-colors" style={{ color: "#FF9900" }}>
-            Shop on Amazon &rarr;
-          </a>
-        </section>
-
-        <section>
-          <h2 className="text-xl font-bold text-ink mb-4 tracking-tight">Related Guides</h2>
-          <div className="grid sm:grid-cols-2 gap-3">
-            {relatedGuides.map((g) => {
-              const isExternal = /^https?:\/\//.test(g.href);
-              const cardClass = "flex items-start gap-3 p-4 rounded-xl border border-border bg-white hover:border-brand transition-colors group";
-              const icon = isExternal ? (
-                <svg className="w-4 h-4 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-                </svg>
-              ) : (
-                <svg className="w-4 h-4 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
-                </svg>
-              );
-              const inner = (
-                <>
-                  <div className="w-8 h-8 rounded-lg bg-brand-muted flex items-center justify-center shrink-0 mt-0.5">
-                    {icon}
+          {/* ── Sticky sidebar: jump nav + a buy button that follows the reader ── */}
+          <aside className="hidden lg:block">
+            <div className="sticky top-24 space-y-4">
+              <nav className="rounded-2xl border border-border bg-white p-4" aria-label="On this page">
+                <p className="df-kicker text-ink-muted mb-3">On this page</p>
+                <ul className="space-y-1">
+                  {toc.map((t) => (
+                    <li key={t.id}>
+                      <a href={`#${t.id}`} className="block text-sm text-ink-secondary hover:text-cta py-1 transition-colors">{t.label}</a>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+              {products[0] && (
+                <div className="rounded-2xl border border-border bg-white p-4">
+                  <p className="df-kicker text-cta mb-2">Top pick</p>
+                  <div className="h-32 flex items-center justify-center mb-3">
+                    <Image src={products[0].imageUrl} alt={products[0].name} width={160} height={128} className="h-full w-auto object-contain" unoptimized />
                   </div>
-                  <div>
-                    <p className="font-bold text-ink text-sm group-hover:text-brand transition-colors">{g.title}</p>
-                  </div>
-                </>
-              );
-              return isExternal ? (
-                <a key={g.href} href={g.href} target="_blank" rel="noopener noreferrer" className={cardClass}>
-                  {inner}
-                </a>
-              ) : (
-                <Link prefetch={false} key={g.href} href={g.href} className={cardClass}>
-                  {inner}
-                </Link>
-              );
-            })}
-          </div>
-        </section>
+                  <p className="text-sm font-semibold text-ink mb-3 leading-snug">{products[0].name}</p>
+                  <BuyButton href={products[0].amazonUrl} label="Check price" compact />
+                </div>
+              )}
+            </div>
+          </aside>
+        </div>
       </Container>
+
+      <MobileProductCTA items={products.map((p) => ({ id: p.id, name: p.name, amazonUrl: p.amazonUrl }))} />
     </>
   );
 }
